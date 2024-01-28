@@ -31,8 +31,8 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-keys_json = json.load("excel_project\keys.json")
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = keys_json
+GOOGLE_CLOUD_STORAGE_BUCKET = 'for-excel-files'
+GOOGLE_CLOUD_STORAGE_JSON_KEY_FILE = 'excel_project/keys.json'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

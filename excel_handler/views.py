@@ -5,25 +5,30 @@ from django.shortcuts import render, redirect
 from .forms import ExcelUploadForm
 from .models import ExcelFile
 from google.cloud import storage
+from django.conf import settings
+
 
 def upload_excel(request):
     if request.method == 'POST' and request.FILES.get('file'):
         file = request.FILES['file']
         
-        # Initialize Google Cloud Storage client
-        client = storage.Client()
-        bucket = client.bucket('for-excel-files')  # Replace 'your-bucket-name' with your actual bucket name
-        
+        # Initialize Google Cloud Storage client using the provided JSON key file
+        client = storage.Client.from_service_account_json(settings.GOOGLE_CLOUD_STORAGE_JSON_KEY_FILE)
+
+        # Get the GCS bucket
+        bucket = client.bucket(settings.GOOGLE_CLOUD_STORAGE_BUCKET)
+
         # Upload the file to Google Cloud Storage
         blob = bucket.blob(file.name)
         blob.upload_from_file(file)
         
-        # Optionally, save file details in your database
         
-        return redirect('excel_detail')
+        return redirect('excel_detail')  
+
     else:
-        form = ExcelUploadForm()
-    return render(request, 'upload_excel.html', {'form': form})
+        # If the request method is not POST or no file is provided, render the form
+        form = ExcelUploadForm()  # Make sure to replace 'ExcelUploadForm' with the actual form class
+        return render(request, 'upload_excel.html', {'form': form})
 
 def excel_detail(request):
     excel_files = ExcelFile.objects.all()
